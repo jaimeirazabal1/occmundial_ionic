@@ -1,0 +1,37 @@
+<ion-view view-title="OccMundial - Nuevo Evento">
+      <ion-content ng-controller="NuevoCtrl" class="padding">
+          <div class="row">
+              <div class="col col-70">
+                <img src="img/logo.png" width="100%">
+              </div>    
+              <div class="col col-30">
+                    <h2 class="gris_letra_titulo pull-right">Nuevo Evento</h2>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col col-33">
+                <div class="list">
+                  <label class="item item-input">
+                    <input type="text" ng-model="evento.nombre" placeholder="Nombre del Evento">
+                  </label>
+                  <label class="item item-input">
+                    <input type="date" ng-model="evento.fecha" placeholder="Fecha del Evento">
+                  </label>
+                  <label class="item item-input">
+                    <input type="text" ng-model="evento.ubicacion" placeholder="Ubicación">
+                  </label>
+                </div>
+              </div>
+              <div class="col col-33">
+                <ion-list ng-repeat="tipo in tipos">
+                  <ion-radio ng-model="evento.tipo" ng-change='newValue(tipo.nombre)' ng-value="tipo.nombre">{{tipo.nombre}}</ion-radio>
+                </ion-list>
+              </div>
+              <div class="col col-33">
+                  <a  ng-click="crear_evento()" class="button button-block button-positive">
+                      Siguiente
+                  </a>
+              </div>
+          </div>
+      </ion-content>
+</ion-view>

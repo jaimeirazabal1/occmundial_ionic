@@ -1,0 +1,23 @@
+<ion-view view-title="Occ Mundial">
+ <ion-content class="padding" ng-controller="LoginCtrl">
+      <div class="list list-inset">
+          <div class="row">
+              <div class="col col-70">
+                <img src="img/logo.png" width="100%">
+              </div>    
+              <div class="col col-30">
+                <div class="">
+                    <h2 class="gris_letra_titulo pull-right">App Registro</h2>
+                </div>
+              </div>
+          </div>
+          <label class="item item-input">
+              <input type="text" placeholder="Usuario" ng-model="usuario">
+          </label>
+          <label class="item item-input">
+              <input type="password" placeholder="Contraseña" ng-model="contrasena">
+          </label>
+      </div>
+      <button class="button button-block button-calm" ng-click="login()">Login</button>
+  </ion-content>
+</ion-view>

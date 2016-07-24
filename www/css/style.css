@@ -1,0 +1,13 @@
+/* Empty. Add your own CSS if you like */
+body{
+    background: #f2f2f2;
+}
+.gris_letra_titulo{
+    color:#7f7f7f;
+}
+.pull-right{
+    float:right;
+}
+.justify{
+	text-align: justify;
+}

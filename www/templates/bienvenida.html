@@ -1,0 +1,29 @@
+<ion-view view-title="OccMundial - Bienvenida">
+      <ion-content ng-controller="BienvenidaCtrl" class="padding">
+          <div class="row">
+              <div class="col col-70">
+                <img src="img/logo.png" width="100%">
+              </div>    
+              <div class="col col-30">
+                    <h2 class="gris_letra_titulo pull-right">{{ usuario }}</h2>
+              </div>
+          </div>
+          <div class="row">
+            <div class="col col-33">
+                <a ui-sref="anteriores" class="button button-block button-stable">
+                  Eventos Anteriores
+                </a>  
+            </div>
+            <div class="col col-33">
+                <a ui-sref="nuevo" class="button button-block button-stable">
+                  Nuevo Evento
+                </a>  
+            </div>
+            <div class="col col-33">
+                <a ui-sref="configuracion"  class="button button-block button-stable">
+                  Configuración
+                </a>  
+            </div>
+          </div>
+      </ion-content>
+</ion-view>

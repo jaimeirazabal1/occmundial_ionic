@@ -1,0 +1,35 @@
+<ion-view view-title="OccMundial - Términos y Condiciones">
+      <ion-content ng-controller="TerminosCtrl" class="padding">
+          <div class="row">
+              <div class="col col-70">
+                <img src="img/logo.png" width="100%">
+              </div>    
+              <div class="col col-30">
+                    <h2 class="gris_letra_titulo pull-right">Términos y Condiciones</h2>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col">
+                <p class="justify"><b>Aviso de privacidad de Online Career Center México, S.A.P.I de C.V.</b></p>
+                <p class="justify">Online Career Center México, S.A.P.I de C.V. (comercialmente conocido como "OCC" u "OCCMundial") reconoce que nos estás proporcionando tus datos de contacto, así como tus datos laborales y académicos que aparecen en tu CV. Nuestro compromiso es tratar estos datos únicamente para los fines de promoción laboral propios de este sitio, así como para ofrecerte promociones comerciales de bienes o servicios propios o de terceros que consideramos que pueden ser de tu interés. Antes de que nos proporciones cualquier información, deberás de leer y comprender los términos de este Aviso de Privacidad, manifestando expresamente su consentimiento al Aceptar los mismos.
+                </p>
+                <p class="justify">Salvo para cumplir con las finalidades anteriores, no transferiremos tus datos a ningún tercero.</p>
+                <p class="justify">A continuación el texto integral del Aviso de Privacidad:</p>
+                <p class="justify"><b>I. DE LA IDENTIDAD Y DOMICILIO DEL RESPONSABLE.</b> Este documento es el Aviso de Privacidad de Online Career Center México, S.A.P.I. de C.V. (el "Responsable"), quien será el encargado de tratar los datos personales que usted (el "Titular") nos proporcione. Para los efectos señalados en el presente Aviso de Privacidad, el Responsable señala como su domicilio el ubicado en Autopista México-Querétaro, número 3130, Piso 7, interior 700c, Colonia Valle Dorado, C.P. 54020, Tlalnepantla de Baz, Estado de México.
+                </p>
+              </div>
+          </div>    
+          <div class="row">
+              <div class="col col-50">
+                   <a ng-click="clickHandler('{{tipo}}',false)" class="button button-block button-stable">
+                      Rechazar
+                  </a>             
+              </div>
+              <div class="col col-50">
+                  <a ng-click="clickHandler('{{tipo}}',true)" class="button button-block button-positive">
+                      Aceptar
+                  </a>
+              </div>
+          </div>
+      </ion-content>
+</ion-view>
