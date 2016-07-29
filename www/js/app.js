@@ -1,7 +1,10 @@
 var session = {registros:[]};
+var db = null;
+var usuario_id = null;
+var evento_id = null;
 (function(){
     
-    var app = angular.module('starter', ['ionic']);
+    var app = angular.module('starter', ['ionic','ngCordova','angular-md5']);
     
     
     app.config(function($stateProvider, $urlRouterProvider){
@@ -44,13 +47,67 @@ var session = {registros:[]};
         $urlRouterProvider.otherwise('/login');
     });
     
-    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location){
+    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite,md5){
         $scope.titulo = "App Registro"; 
         $scope.usuario = "";
         $scope.contrasena = "";
+        console.log(md5.createHash("16923509j"));
+        $scope.cargarUsuarios = function(){
+             $scope.show();
+            $http.post("http://tayme.esy.es/aplicaciones/peticiones/cargar_usuarios.php",{action:'cargar'}).then(function(res){
+              console.log(res)
+              if (res.data.length) {
+
+                $query = "DELETE FROM usuario";
+                $cordovaSQLite.execute(db,$query,[]).then(function(s){
+                  console.log(s)
+                },function(e){
+                  $scope.showAlert("Error","Error restaurando base de datos de Usuarios");
+                })    
+                var err = 0;
+                for (var i = 0; i <res.data.length; i++) {
+                  $query = "INSERT into usuario (id,usuario,contrasena) values (?,?,?)";
+
+                  $cordovaSQLite.execute(db,$query,[res.data[i].id,res.data[i].email,res.data[i].contrasena]).then(function(s){
+                    console.log(s)
+                  },function(e){
+                    err=1;
+                    $scope.showAlert("Error","Error restaurando base de datos de Usuarios");
+                  })                  
+                }
+                if (!err) {
+                  $scope.showAlert("Correcto!","Base de datos de usuarios actualizada!");
+                }
+              }else{
+                $scope.showAlert("Aviso","La base de datos de usuarios ha venido vacia");
+              }
+              $scope.hide();
+
+            },function(res){
+                console.log(res.data)
+                $scope.showAlert("Error en Autenticación","Nombre de usuario o contraseña inválidos!");
+                $scope.hide();
+            });          
+        }
         $scope.login = function(){
             $scope.show();
-            $http.post("http://tayme.esy.es/aplicaciones/peticiones/login.php",
+            $query = "SELECT * from usuario where usuario=? and contrasena=?";
+            $cordovaSQLite.execute(db,$query,[$scope.usuario,md5.createHash($scope.contrasena)]).then(function(res){
+                if(res.rows.length){
+                    //$scope.showAlert("Bievenid@ a:","Usuario "+res.data.usuario);
+                    session.usuario = res.rows.item(0);
+                    usuario_id = res.rows.item(0).id;
+                    $location.path('/bienvenida');
+                }else{
+                    $scope.showAlert("Error en Autenticación","Nombre de usuario o contraseña inválidos!");            
+                }
+                $scope.hide();
+            },function(res){
+                console.log(res.data)
+                $scope.showAlert("Error en Autenticación","Nombre de usuario o contraseña inválidos!");
+                $scope.hide();
+            })
+            /*$http.post("http://tayme.esy.es/aplicaciones/peticiones/login.php",
             {
                 usuario:$scope.usuario,
                 contrasena:$scope.contrasena
@@ -70,7 +127,7 @@ var session = {registros:[]};
                 console.log(res.data)
                 $scope.showAlert("Error en Autenticación","Nombre de usuario o contraseña inválidos!");
                 $scope.hide();
-            });
+            });*/
         }
          // An alert dialog
          $scope.showAlert = function(title,mgs) {
@@ -104,16 +161,25 @@ var session = {registros:[]};
         $scope.titulo = "App Registro";
         //$scope.usuario = session.usuario.usuario;
     });
-    app.controller("NuevoCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location){
+    app.controller("NuevoCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite){
         /*if(!session.usuario){
             $location.path('/Nuevo');
         }*/
         function get_by_nombre(nombre){
-          for (var i = 0; i < session.registros.length; i++) {
+          query = "SELECT * from evento where nombre = ?";
+          $cordovaSQLite.execute(db,query,[nombre]).then(function(res){
+            if (res.rows.length) {
+              console.log("Evento con id:"+res.rows.item(0).id);
+              return res.rows.item(0).id;
+            }
+          },function(res){
+            $scope.showAlert("Error",res);
+          });
+         /* for (var i = 0; i < session.registros.length; i++) {
             if (session.registros[i].nombre == nombre) {
               return i;
             }
-          }
+          }*/
           return false;
         }
         $scope.showAlert = function(title,mgs) {
@@ -177,9 +243,34 @@ var session = {registros:[]};
           if(!$scope.validar_form_evento()){
             return;
           }
+          query = "SELECT * from evento where nombre = ?";
+
+          $cordovaSQLite.execute(db,query,[$scope.evento.nombre]).then(function(res){
+            if (res.rows.length) {
+              $scope.preguntar('Aviso',"Se ha encontrado un evento con el nombre '"+$scope.evento.nombre+"', si acepta, se reescribe, si no, no pasa nada!");
+              console.log("Evento con id:"+res.rows.item(0).id);
+              return res.rows.item(0).id;
+            }else{
+              query = "INSERT INTO evento (nombre,fecha,ubicacion,tipo,usuario_id) values (?,?,?,?,?) ";
+              $cordovaSQLite.execute(db,query,[$scope.evento.nombre,$scope.evento.fecha,$scope.evento.ubicacion,$scope.evento.tipo,usuario_id]).then(function(res){
+                console.log(res)
+                $scope.showAlert("Evento registrado!","Evento registrado correctamente!");
+                evento_id= res.insertId;
+                $location.path("/comenzar/"+$scope.evento.tipo.toLowerCase());
+              },function(res){
+                console.log(res)
+
+                $scope.showAlert("Error",res.message);
+              });
+            }
+          },function(res){
+            console.log(res)
+            $scope.showAlert("Error",res.message);
+          });
           id = session.registros.length+1;
           
-          nro_evento = get_by_nombre($scope.evento.nombre);
+         /* nro_evento = get_by_nombre($scope.evento.nombre);
+          console.log("")
           if (nro_evento >= 0 && nro_evento !== false) {
             $scope.preguntar('Aviso',"Se ha encontrado un evento con el nombre '"+$scope.evento.nombre+"', si acepta, se reescribe, si no, no pasa nada!");
           }else{
@@ -190,7 +281,7 @@ var session = {registros:[]};
               }
           }
           
-          console.log(session.registros)
+          console.log(session.registros)*/
         }
         //$scope.usuario = session.usuario.usuario;
     });
@@ -453,15 +544,39 @@ var session = {registros:[]};
 
 
 
-    app.run(function($ionicPlatform) {
+    app.run(function($ionicPlatform,$cordovaSQLite) {
       $ionicPlatform.ready(function() {
         if(window.cordova && window.cordova.plugins.Keyboard) {
           cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
           cordova.plugins.Keyboard.disableScroll(true);
+
+          db = $cordovaSQLite.openDB({ name: "my.db", iosDatabaseLocation:'default'});
+        }else{
+          db = window.openDatabase("my.db", "1.0", "Occ Mundial", 200000);
         }
         if(window.StatusBar) {
           StatusBar.styleDefault();
         }
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS evento (id integer primary key, nombre text, fecha text, ubicacion text, tipo text, usuario_id integer)").then(function(r){
+          console.log(r)
+        },function(e){
+          console.log(e)
+        });
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS empresa (id integer primary key, nombre_completo text, email text, telefono text, celular text, nombre_empresa text,comentario text, favorito integer)").then(function(r){
+          console.log(r)
+        },function(e){
+          console.log(e)
+        });
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS universidad (id integer primary key, nombre_completo text, email text, telefono text, celular text, contrasena text,comentario text, favorito integer)").then(function(r){
+          console.log(r)
+        },function(e){
+          console.log(e)
+        });
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS usuario (id integer primary key, usuario text, contrasena text)").then(function(r){
+          console.log(r)
+        },function(e){
+          console.log(e)
+        });        
       });
     })
 }());
