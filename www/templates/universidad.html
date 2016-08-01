@@ -2,8 +2,9 @@
       <ion-content ng-controller="UniversidadCtrl" class="padding">
           <div class="row">
               <div class="col col-70">
-                <img src="img/logo.png" width="100%">
-              </div>    
+                <a ui-sref="bienvenida"><img src="img/logo.png"   width="100%"></a>
+                
+              </div>     
               <div class="col col-30">
                     <h2 class="gris_letra_titulo pull-right">Registro Universidad</h2>
               </div>
@@ -12,6 +13,7 @@
               <div class="col col-50">
                 <div class="list">
                   <label class="item item-input">
+                    <input type="hidden" ng-model="universidad.id">
                     <input type="text" ng-model="universidad.nombre_completo" placeholder="Nombre Completo">
                   </label>
                   <label class="item item-input">
