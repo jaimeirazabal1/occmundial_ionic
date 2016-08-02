@@ -11,7 +11,7 @@ body{
 .justify{
 	text-align: justify;
 }
-input[type="date"]:before{
+/*input[type="date"]:before{
     color:lightgray;
     content:attr(placeholder);
-}
+}*/

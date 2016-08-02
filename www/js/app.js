@@ -8,7 +8,7 @@ var modificar = {};
     
     var app = angular.module('starter', ['ionic','ngCordova','angular-md5']);
     
-    
+   
     app.config(function($stateProvider, $urlRouterProvider){
         $stateProvider.state('login',{
             url:'/login',
@@ -73,17 +73,29 @@ var modificar = {};
         $urlRouterProvider.otherwise('/login');
     });
     
-    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite,md5){
+    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$state,$location,$cordovaSQLite,md5){
         $scope.$on('$ionicView.beforeEnter', function () {
-            $scope.doRefresh();
+            //$scope.doRefresh();
         });
+        $scope.logout = function(){
+          usuario_id=null;
+          $state.go("login");
+        }
+        $scope.isLogin=false;
+        console.log($scope.isLogin)
+        if (usuario_id) {
+          $scope.isLogin=true;
+        }else{
+          $scope.isLogin=false;
+
+        }
         $scope.titulo = "App Registro"; 
         $scope.usuario = "";
         $scope.contrasena = "";
         console.log(md5.createHash("16923509j"));
         $scope.cargarUsuarios = function(){
              $scope.show();
-            $http.post(servidor+"cargar_usuarios.php",{action:'cargar'}).then(function(res){
+            $http.post(servidor+"cargar_usuarios.php",{action:'cargar'}, { timeout: 5000 }).then(function(res){
               console.log(res)
               if (res.data.length) {
 
@@ -224,6 +236,10 @@ var modificar = {};
           }*/
           return false;
         }
+
+        $scope.$watch("evento.fecha", function(newValue, oldValue) {
+          console.log("Nuevo valor de fecha:",newValue);
+        });
         $scope.showAlert = function(title,mgs) {
            var alertPopup = $ionicPopup.alert({
              title: title,
@@ -363,7 +379,7 @@ var modificar = {};
             }
 
          
-              $http.post(servidor+"subir_db.php",{action:'subir_eventos',evento:eventos}).then(function(res){
+              $http.post(servidor+"subir_db.php",{action:'subir_eventos',evento:eventos}, { timeout: 5000 }).then(function(res){
                 console.log(res)
 
               },function(res){
@@ -380,7 +396,7 @@ var modificar = {};
                   empresa.push(ok.rows.item(i));
                 }  
 
-                $http.post(servidor+"subir_db.php",{action:'subir_empresas',evento:empresa}).then(function(res){
+                $http.post(servidor+"subir_db.php",{action:'subir_empresas',evento:empresa}, { timeout: 5000 }).then(function(res){
                   console.log(res)
 
                 },function(res){
@@ -398,7 +414,7 @@ var modificar = {};
                     universidad.push(ok.rows.item(i));
                   }
 
-                  $http.post(servidor+"subir_db.php",{action:'subir_universidades',evento:universidad}).then(function(res){
+                  $http.post(servidor+"subir_db.php",{action:'subir_universidades',evento:universidad}, { timeout: 5000 }).then(function(res){
                     console.log(res)
                      $scope.hide();
                   },function(res){
@@ -568,6 +584,9 @@ var modificar = {};
         $scope.guardar = function(){
           if (usuario_id != null && evento_id != null) {
             if ($scope.universidad.id) {
+              if (!$scope.validar_form_universidad()) {
+                return;
+              }              
               query = "UPDATE universidad set nombre_completo=?,email=?,telefono=?,celular=?,contrasena=?,comentario=?,favorito=?,evento_id=? where id=?";
 
               $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.favorite,evento_id,$scope.universidad.id]).then(function(ok){
@@ -770,7 +789,11 @@ var modificar = {};
         $scope.guardar = function(){
 
           if (usuario_id != null && evento_id != null) {
+            console.log("Valore de la empresa:",$scope.empresa)
             if ($scope.empresa.id) {
+              if (!$scope.validar_form_empresa()) {
+                return;
+              }
               query = "UPDATE empresa set nombre_completo=?,email=?,telefono=?,celular=?,nombre_empresa=?,comentario=?,favorito=?,evento_id=? where id=?";
               $cordovaSQLite.execute(db,query,[$scope.empresa.nombre_completo,$scope.empresa.email,$scope.empresa.telefono,$scope.empresa.celular,$scope.empresa.nombre_empresa,$scope.empresa.comentario,$scope.favorite,evento_id,$scope.empresa.id]).then(function(ok){
                     if (ok.rowsAffected) {
@@ -934,6 +957,7 @@ var modificar = {};
           $cordovaSQLite.execute(db,"DROP TABLE evento",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"DROP TABLE empresa",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"DROP TABLE universidad",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"DROP TABLE usuario",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
         }
         function ver_tablas(){
           $cordovaSQLite.execute(db,"SELECT * FROM evento LIMIT 1",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
@@ -988,7 +1012,7 @@ var modificar = {};
           console.log(e)
         });     
         //ver_tablas();  
-        registros_pruebas();
+        //registros_pruebas();
       });
     })
 }());
