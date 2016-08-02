@@ -80,6 +80,7 @@ var modificar = {};
         $scope.logout = function(){
           usuario_id=null;
           $state.go("login");
+          ionic.Platform.exitApp();
         }
         $scope.isLogin=false;
         console.log($scope.isLogin)
@@ -587,9 +588,9 @@ var modificar = {};
               if (!$scope.validar_form_universidad()) {
                 return;
               }              
-              query = "UPDATE universidad set nombre_completo=?,email=?,telefono=?,celular=?,contrasena=?,comentario=?,favorito=?,evento_id=? where id=?";
+              query = "UPDATE universidad set nombre_completo=?,email=?,telefono=?,celular=?,contrasena=?,comentario=?,favorito=?,evento_id=?, usuario=? where id=?";
 
-              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.favorite,evento_id,$scope.universidad.id]).then(function(ok){
+              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.favorite,evento_id,usuario_id,$scope.universidad.id]).then(function(ok){
                     if (ok.rowsAffected) {
                       $scope.pasa_form= true;
                       $scope.showAlert("Correcto","Registro editado correctamente!");
@@ -625,9 +626,9 @@ var modificar = {};
               if (!$scope.validar_form_universidad()) {
                 return;
               }
-              query = "INSERT INTO universidad (nombre_completo,email,telefono,celular,contrasena,comentario,favorito,evento_id) values (?,?,?,?,?,?,?,?)";
+              query = "INSERT INTO universidad (nombre_completo,email,telefono,celular,contrasena,comentario,favorito,evento_id,usuario) values (?,?,?,?,?,?,?,?,?)";
         
-              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.universidad.favorite,evento_id]).then(function(ok){
+              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.universidad.favorite,evento_id,usuario_id]).then(function(ok){
                 if (ok.insertId) {
                   $scope.pasa_form= true;
                   $scope.showAlert("Correcto","Registro insertado correctamente!");
@@ -794,8 +795,10 @@ var modificar = {};
               if (!$scope.validar_form_empresa()) {
                 return;
               }
-              query = "UPDATE empresa set nombre_completo=?,email=?,telefono=?,celular=?,nombre_empresa=?,comentario=?,favorito=?,evento_id=? where id=?";
-              $cordovaSQLite.execute(db,query,[$scope.empresa.nombre_completo,$scope.empresa.email,$scope.empresa.telefono,$scope.empresa.celular,$scope.empresa.nombre_empresa,$scope.empresa.comentario,$scope.favorite,evento_id,$scope.empresa.id]).then(function(ok){
+              console.log("EDITANDO>>>")
+              query = "UPDATE empresa set nombre_completo=?,email=?,telefono=?,celular=?,nombre_empresa=?,comentario=?,favorito=?,evento_id=?,usuario=? where id=?";
+              $cordovaSQLite.execute(db,query,[$scope.empresa.nombre_completo,$scope.empresa.email,$scope.empresa.telefono,$scope.empresa.celular,$scope.empresa.nombre_empresa,$scope.empresa.comentario,$scope.favorite,evento_id,usuario_id,$scope.empresa.id]).then(function(ok){
+                   console.log(ok)
                     if (ok.rowsAffected) {
                       $scope.pasa_form= true;
                       $scope.showAlert("Correcto","Registro editado correctamente!");
@@ -832,8 +835,8 @@ var modificar = {};
                 if (!$scope.validar_form_empresa()) {
                   return;
                 }
-                  query = "INSERT INTO empresa (nombre_completo,email,telefono,celular,nombre_empresa,comentario,favorito,evento_id) values (?,?,?,?,?,?,?,?)";
-                  $cordovaSQLite.execute(db,query,[$scope.empresa.nombre_completo,$scope.empresa.email,$scope.empresa.telefono,$scope.empresa.celular,$scope.empresa.nombre_empresa,$scope.empresa.comentario,$scope.favorite,evento_id]).then(function(ok){
+                  query = "INSERT INTO empresa (nombre_completo,email,telefono,celular,nombre_empresa,comentario,favorito,evento_id,usuario) values (?,?,?,?,?,?,?,?,?)";
+                  $cordovaSQLite.execute(db,query,[$scope.empresa.nombre_completo,$scope.empresa.email,$scope.empresa.telefono,$scope.empresa.celular,$scope.empresa.nombre_empresa,$scope.empresa.comentario,$scope.favorite,evento_id,usuario_id]).then(function(ok){
                     if (ok.insertId) {
                       $scope.pasa_form= true;
                       $scope.showAlert("Correcto","Registro insertado correctamente!");
@@ -936,6 +939,68 @@ var modificar = {};
           }
         },function(err){});        
       }
+      $scope.reciente = function(){
+        query = "SELECT * from evento order by fecha desc";
+        $scope.eventos = [];
+        $cordovaSQLite.execute(db,query,[]).then(function(ok){
+          console.log(ok)
+          for (var i = 0; i < ok.rows.length; i++) {
+            $scope.eventos.push(ok.rows.item(i));
+          }
+        },function(err){});          
+      }
+      $scope.showSelectValue=function(selected){
+         query = "SELECT * from evento where fecha=?";
+         $scope.eventos = [];
+        $cordovaSQLite.execute(db,query,[selected.fecha]).then(function(ok){
+          if (ok.rows.length) {
+            for (var i = 0; i < ok.rows.length; i++) {
+            
+              $scope.eventos.push(ok.rows.item(i));
+            }
+          }
+        },function(err){console.log(err)});    
+      }
+      $scope.showSelectValueNombre=function(selectedNombre){
+         query = "SELECT * from evento where nombre=?";
+         $scope.eventos = [];
+        $cordovaSQLite.execute(db,query,[selectedNombre.nombre]).then(function(ok){
+          if (ok.rows.length) {
+            for (var i = 0; i < ok.rows.length; i++) {
+            
+              $scope.eventos.push(ok.rows.item(i));
+            }
+          }
+        },function(err){console.log(err)});    
+      }
+         query = "SELECT * from evento order by fecha desc";
+         $scope.fechas=[]
+        $cordovaSQLite.execute(db,query,[]).then(function(ok){
+          if (ok.rows.length) {
+            console.log($scope.fechas);
+            for (var i = 0; i < ok.rows.length; i++) {
+              if (i==0) {
+                $scope.selected=ok.rows.item(0);
+
+              }
+              $scope.fechas.push(ok.rows.item(i))
+            }
+          }
+        },function(err){console.log(err)});     
+         query = "SELECT * from evento  group by nombre order by nombre asc";
+         $scope.nombres=[]
+        $cordovaSQLite.execute(db,query,[]).then(function(ok){
+          if (ok.rows.length) {
+            console.log($scope.nombres);
+            for (var i = 0; i < ok.rows.length; i++) {
+              if (i==0) {
+                $scope.selected=ok.rows.item(0);
+
+              }
+              $scope.nombres.push(ok.rows.item(i))
+            }
+          }
+        },function(err){console.log(err)}); 
     })
 
 
@@ -965,43 +1030,43 @@ var modificar = {};
           $cordovaSQLite.execute(db,"SELECT * FROM universidad LIMIT 1",[]).then(function(e){console.log(e)},function(e){ console.log(e)});
         }
         function registros_pruebas(){
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV','uni1@gmail.com','1111','2222','16923509','Comentario universidad','true','1']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV12','uni12@gmail.com','1111-2','22221','16923509-21','Comentario universidad 2','true','1']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV13','uni13@gmail.com','1111-3','22222','16923509-22','Comentario universidad 3','true','1']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV21','uni14@gmail.com','1111-4','22223','16923509-22','Comentario universidad 4','true','2']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV22','uni15@gmail.com','1111-5','22224','16923509-23','Comentario universidad 5','true','2']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV23','uni16@gmail.com','1111-6','22225','16923509-24','Comentario universidad 6','true','3']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona UNIV24','uni17@gmail.com','1111-7','22226','16923509-25','Comentario universidad 7','true','3']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV','uni1@gmail.com','1111','2222','16923509','Comentario universidad','true','1','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV12','uni12@gmail.com','1111-2','22221','16923509-21','Comentario universidad 2','true','1','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV13','uni13@gmail.com','1111-3','22222','16923509-22','Comentario universidad 3','true','1','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV21','uni14@gmail.com','1111-4','22223','16923509-22','Comentario universidad 4','true','2','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV22','uni15@gmail.com','1111-5','22224','16923509-23','Comentario universidad 5','true','2','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV23','uni16@gmail.com','1111-6','22225','16923509-24','Comentario universidad 6','true','3','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO universidad (nombre_completo, email, telefono, celular, contrasena,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona UNIV24','uni17@gmail.com','1111-7','22226','16923509-25','Comentario universidad 7','true','3','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
 
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa','empresa1@gmail.com','1111','2222','16923509','Comentario empresa','true','4']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa12','empresa12@gmail.com','1111-2','22221','16923509-21','Comentario empresa 2','true','4']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa13','empresa13@gmail.com','1111-3','22222','16923509-22','Comentario empresa 3','true','4']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa21','empresa14@gmail.com','1111-4','22223','16923509-22','Comentario empresa 4','true','5']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa22','empresa15@gmail.com','1111-5','22224','16923509-23','Comentario empresa 5','true','5']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa23','empresa16@gmail.com','1111-6','22225','16923509-24','Comentario empresa 6','true','6']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa24','empresa17@gmail.com','1111-7','22226','16923509-25','Comentario empresa 7','true','6']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa','empresa1@gmail.com','1111','2222','16923509','Comentario empresa','true','4','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa12','empresa12@gmail.com','1111-2','22221','16923509-21','Comentario empresa 2','true','4','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa13','empresa13@gmail.com','1111-3','22222','16923509-22','Comentario empresa 3','true','4','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa21','empresa14@gmail.com','1111-4','22223','16923509-22','Comentario empresa 4','true','5','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa22','empresa15@gmail.com','1111-5','22224','16923509-23','Comentario empresa 5','true','5','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa23','empresa16@gmail.com','1111-6','22225','16923509-24','Comentario empresa 6','true','6','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id, usuario) values (?,?,?,?,?,?,?,?,?)",['Persona empresa24','empresa17@gmail.com','1111-7','22226','16923509-25','Comentario empresa 7','true','6','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
           
           $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 6','2016-08-01 15:16:30','Ubicacion evento 1','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 5','2016-09-01 15:16:30','Ubicacion evento 2','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 4','2016-10-01 15:16:30','Ubicacion evento 3','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 3','2016-11-01 15:16:30','Ubicacion evento 4','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 2','2016-12-01 15:16:30','Ubicacion evento 5','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 1','2017-01-01 15:16:30','Ubicacion evento 6','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 1','2016-01-01 15:16:30','Ubicacion evento 6','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
 
 
         }
-        borrar_todo();
+        //borrar_todo();
         $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS evento (id integer primary key, nombre text, fecha text, ubicacion text, tipo text, usuario_id integer)").then(function(r){
           console.log(r)
         },function(e){
           console.log(e)
         });
-        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS empresa (id integer primary key, nombre_completo text, email text, telefono text, celular text, nombre_empresa text,comentario text, favorito integer,evento_id integer)").then(function(r){
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS empresa (id integer primary key, nombre_completo text, email text, telefono text, celular text, nombre_empresa text,comentario text, favorito integer,evento_id integer, usuario integer)").then(function(r){
           console.log(r)
         },function(e){
           console.log(e)
         });
-        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS universidad (id integer primary key, nombre_completo text, email text, telefono text, celular text, contrasena text,comentario text, favorito integer,evento_id integer)").then(function(r){
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS universidad (id integer primary key, nombre_completo text, email text, telefono text, celular text, contrasena text,comentario text, favorito integer,evento_id integer, usuario integer)").then(function(r){
           console.log(r)
         },function(e){
           console.log(e)

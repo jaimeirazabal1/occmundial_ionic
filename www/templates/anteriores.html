@@ -12,9 +12,29 @@
         <div class="row">
 		  <div class="col col-33">
 		  	<button class="button button-outline button-positive" ng-click="alfabetico()" style="width:100%;margin:3px">A-Z</button>
-		  	<button class="button button-outline button-positive" style="width:100%;margin:3px">Seleccionar Fecha</button>
-		  	<button class="button button-outline button-positive" style="width:100%;margin:3px">Mas Reciente</button>
-		  	<button class="button button-outline button-positive" style="width:100%;margin:3px">Buscar por Nombre</button>
+		  	<div class="list">
+
+			  <label class="item item-input item-select" style="width:100%;margin:3px 3px -12px 3px">
+			    <div class="input-label">
+			      Fecha
+			    </div>
+			    <select ng-options="item as item.fecha for item in fechas track by item.id" ng-model="selected" ng-change="showSelectValue(selected)">
+			    </select>
+			  </label>
+
+			</div>
+		  	<button class="button button-outline button-positive" style="width:100%;margin:3px" ng-click="reciente()">Mas Reciente</button>
+		  	<div class="list">
+
+				  <label class="item item-input item-select" style="width:100%;margin:3px 3px -12px 3px">
+				    <div class="input-label">
+				      Nombres
+				    </div>
+				    <select ng-options="item as item.nombre for item in nombres track by item.id" ng-model="selectedNombre" ng-change="showSelectValueNombre(selectedNombre)">
+				    </select>
+				  </label>
+
+				</div>
 		  </div>
 		  <div class="col col-33">
 		  	<ul class="list" >
