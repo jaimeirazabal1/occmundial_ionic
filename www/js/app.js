@@ -12,42 +12,62 @@ var modificar = {};
     app.config(function($stateProvider, $urlRouterProvider){
         $stateProvider.state('login',{
             url:'/login',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/login.html'
         });
         $stateProvider.state('bienvenida',{
             url:'/bienvenida',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/bienvenida.html'
         });
        $stateProvider.state('nuevo',{
             url:'/nuevo',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/nuevo.html'
         });
        $stateProvider.state('configuracion',{
             url:'/configuracion',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/configuracion.html'
         });
        $stateProvider.state('anteriores',{
             url:'/anteriores',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/anteriores.html'
         });
        $stateProvider.state('comenzar',{
             url:'/comenzar/:tipo',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/comenzar.html'
         });
        $stateProvider.state('universidad',{
             url:'/universidad/:acepto?/:id?',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/universidad.html'
         });
        $stateProvider.state('empresa',{
             url:'/empresa/:acepto?/:id?',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/empresa.html'
         });
        $stateProvider.state('terminos',{
             url:'/terminos/:tipo',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/terminos.html'
         });
        $stateProvider.state('completado',{
             url:'/completado/:tipo/:id',
+            //abstract: true, 
+            cache: false, 
             templateUrl:'./templates/completado.html'
         });
         $urlRouterProvider.otherwise('/login');
@@ -167,6 +187,7 @@ var modificar = {};
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
+        modificar = null;
         // if(!session.usuario){
         //     $location.path('/login');
         // }
@@ -428,12 +449,11 @@ var modificar = {};
             $scope.doRefresh();
         });
 
-          console.log("Evemto modificar=>",modificar.evento_id)
-        if (modificar.evento_id) {
+        if (modificar && modificar.evento_id) {
           evento_id = modificar.evento_id
           console.log("cambiando el evento_id:",evento_id)
         }
-        if (modificar.nombre_completo) {
+        if (modificar && modificar.nombre_completo) {
             console.log("Va a modificar");
               $scope.universidad = {
                 id:modificar.id,
@@ -549,6 +569,7 @@ var modificar = {};
           if (usuario_id != null && evento_id != null) {
             if ($scope.universidad.id) {
               query = "UPDATE universidad set nombre_completo=?,email=?,telefono=?,celular=?,contrasena=?,comentario=?,favorito=?,evento_id=? where id=?";
+
               $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.favorite,evento_id,$scope.universidad.id]).then(function(ok){
                     if (ok.rowsAffected) {
                       $scope.pasa_form= true;
@@ -559,7 +580,7 @@ var modificar = {};
                       modificar.email = $scope.universidad.email;
                       modificar.telefono = $scope.universidad.telefono;
                       modificar.celular = $scope.universidad.celular;
-                      modificar.contrasena = $scope.universidad.nombre_universidad;
+                      modificar.contrasena = $scope.universidad.contrasena;
                       modificar.comentario = $scope.universidad.comentario;
                       modificar.favorite = $scope.universidad.favorite;
                       modificar.evento_id = evento_id;
@@ -586,7 +607,8 @@ var modificar = {};
                 return;
               }
               query = "INSERT INTO universidad (nombre_completo,email,telefono,celular,contrasena,comentario,favorito,evento_id) values (?,?,?,?,?,?,?,?)";
-              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.nombre_universidad,$scope.universidad.comentario,$scope.universidad.favorite,evento_id]).then(function(ok){
+        
+              $cordovaSQLite.execute(db,query,[$scope.universidad.nombre_completo,$scope.universidad.email,$scope.universidad.telefono,$scope.universidad.celular,$scope.universidad.contrasena,$scope.universidad.comentario,$scope.universidad.favorite,evento_id]).then(function(ok){
                 if (ok.insertId) {
                   $scope.pasa_form= true;
                   $scope.showAlert("Correcto","Registro insertado correctamente!");
@@ -621,12 +643,14 @@ var modificar = {};
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
-        console.log("Evemto modificar=>",modificar.evento_id)
-        if (modificar.evento_id) {
+        //console.log("Evemto modificar=>",modificar.evento_id)
+        if (modificar && modificar.evento_id) {
           evento_id = modificar.evento_id
           console.log("cambiando el evento_id:",evento_id)
+        }else{
+          $scope.checkStatus=false;
         }
-        if (modificar.nombre_completo) {
+        if (modificar && modificar.nombre_completo) {
             console.log("Va a modificar");
               $scope.empresa = {
                 id:modificar.id,
@@ -828,7 +852,7 @@ var modificar = {};
         $scope.tipo = $state.params.tipo;
     });
 
-    app.controller("CompletadoCtrl",function($scope, $location, $state, $cordovaSQLite){
+    app.controller("CompletadoCtrl",function($scope, $location, $state, $cordovaSQLite,$rootScope){
       $scope.$on('$ionicView.beforeEnter', function () {
           $scope.doRefresh();
       });
@@ -849,10 +873,15 @@ var modificar = {};
             //$location.path("/"+$scope.tipo+"/");
           }
         },function(err){console.log(err)});
-      $scope.modificar=function(){
-        $state.go($scope.tipo,modificar);
-      }
-     
+        $scope.modificar=function(){
+          $state.go($scope.tipo,modificar);
+        }
+         $scope.nuevo=function(a){
+          console.log("recibiendo a:",a);
+
+          modificar=null;
+          $state.go(a,{},{location:'replace'});
+         }
     });
     app.controller("AnterioresCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite,$state){
       $scope.$on('$ionicView.beforeEnter', function () {
@@ -928,12 +957,12 @@ var modificar = {};
           $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa23','empresa16@gmail.com','1111-6','22225','16923509-24','Comentario empresa 6','true','6']).then(function(e){console.log(e)},function(e){ console.log(e)});
           $cordovaSQLite.execute(db,"INSERT INTO empresa (nombre_completo, email, telefono, celular, nombre_empresa,comentario, favorito,evento_id) values (?,?,?,?,?,?,?,?)",['Persona empresa24','empresa17@gmail.com','1111-7','22226','16923509-25','Comentario empresa 7','true','6']).then(function(e){console.log(e)},function(e){ console.log(e)});
           
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['f','2016-08-01 15:16:30','Ubicacion evento 1','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['e','2016-09-01 15:16:30','Ubicacion evento 2','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['d','2016-10-01 15:16:30','Ubicacion evento 3','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['c','2016-11-01 15:16:30','Ubicacion evento 4','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['b','2016-12-01 15:16:30','Ubicacion evento 5','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
-          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['a','2017-01-01 15:16:30','Ubicacion evento 6','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 6','2016-08-01 15:16:30','Ubicacion evento 1','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 5','2016-09-01 15:16:30','Ubicacion evento 2','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 4','2016-10-01 15:16:30','Ubicacion evento 3','universidad','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 3','2016-11-01 15:16:30','Ubicacion evento 4','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 2','2016-12-01 15:16:30','Ubicacion evento 5','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
+          $cordovaSQLite.execute(db,"INSERT INTO evento (nombre, fecha, ubicacion, tipo, usuario_id) values (?,?,?,?,?)",['Evento 1','2017-01-01 15:16:30','Ubicacion evento 6','empresa','15']).then(function(e){console.log(e)},function(e){ console.log(e)});
 
 
         }
