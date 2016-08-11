@@ -73,11 +73,12 @@ var modificar = {};
         $urlRouterProvider.otherwise('/login');
     });
     
-    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$state,$location,$cordovaSQLite,md5){
+    app.controller("LoginCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$state,$location,$cordovaSQLite,md5,$rootScope){
         $scope.$on('$ionicView.beforeEnter', function () {
             //$scope.doRefresh();
         });
-        $scope.logout = function(){
+
+        $rootScope.logout = function(){
           usuario_id=null;
           $state.go("login");
           ionic.Platform.exitApp();
@@ -96,7 +97,7 @@ var modificar = {};
         console.log(md5.createHash("16923509j"));
         $scope.cargarUsuarios = function(){
              $scope.show();
-            $http.post(servidor+"cargar_usuarios.php",{action:'cargar'}, { timeout: 5000 }).then(function(res){
+            $http.post(servidor+"cargar_usuarios.php",{action:'cargar'}).then(function(res){
               console.log(res)
               if (res.data.length) {
 
@@ -196,10 +197,20 @@ var modificar = {};
             });
           };
     });
-    app.controller("BienvenidaCtrl",function($scope, $location){
+    app.controller("BienvenidaCtrl",function($scope, $location, $ionicHistory){
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
+        $scope.logout = function(){
+
+          ionic.Platform.exitApp();
+        }
         modificar = null;
         // if(!session.usuario){
         //     $location.path('/login');
@@ -207,10 +218,16 @@ var modificar = {};
         $scope.titulo = "App Registro";
         //$scope.usuario = session.usuario.usuario;
     });
-    app.controller("NuevoCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite){
+    app.controller("NuevoCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite, $ionicHistory){
         /*if(!session.usuario){
             $location.path('/Nuevo');
         }*/
+        if (!usuario_id) {
+                 $ionicHistory.nextViewOptions({
+            disableBack: true
+        });
+          $state.go("login");
+        }
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
@@ -348,10 +365,16 @@ var modificar = {};
         //$scope.usuario = session.usuario.usuario;
     });
    
-    app.controller("ConfiguracionCtrl",function($scope, $location, $cordovaSQLite, $ionicLoading, $http){
+    app.controller("ConfiguracionCtrl",function($scope, $location, $cordovaSQLite, $ionicLoading, $http, $ionicHistory){
         // if(!session.usuario){
         //     $location.path('/configuracion');
         // }
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
           $scope.$on('$ionicView.beforeEnter', function () {
               $scope.doRefresh();
           });
@@ -444,10 +467,16 @@ var modificar = {};
         }
         //$scope.usuario = session.usuario.usuario;
     });
-    app.controller("ComenzarCtrl",function($scope, $location,$state){
+    app.controller("ComenzarCtrl",function($scope, $location,$state, $ionicHistory){
         // if(!session.usuario){
         //     $location.path('/comenzar');
         // }
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
@@ -458,10 +487,16 @@ var modificar = {};
           $scope.titulo = "Registro ExpoEmpleo 16";
         }
     });
-    app.controller("UniversidadCtrl",function($scope, $ionicPopup, $location,$state,$cordovaSQLite, $ionicHistory){
+    app.controller("UniversidadCtrl",function($scope, $ionicPopup, $location,$state,$cordovaSQLite, $ionicHistory, $ionicHistory){
         // if(!session.usuario){
         //     $location.path('/comenzar');
         // }
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
@@ -656,10 +691,16 @@ var modificar = {};
         $scope.tipo = 'universidad';
         
     });
-    app.controller("EmpresaCtrl",function($scope, $ionicPopup, $location, $state, $cordovaSQLite){
+    app.controller("EmpresaCtrl",function($scope, $ionicPopup, $location, $state, $cordovaSQLite, $ionicHistory){
         // if(!session.usuario){
         //     $location.path('/comenzar');
         // }
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
@@ -864,10 +905,16 @@ var modificar = {};
         $scope.tipo = 'empresa';
         }
     });
-    app.controller("TerminosCtrl",function($scope, $location,$state){
+    app.controller("TerminosCtrl",function($scope, $location,$state, $ionicHistory){
         // if(!session.usuario){
         //     $location.path('/comenzar');
         // }
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
         $scope.$on('$ionicView.beforeEnter', function () {
             $scope.doRefresh();
         });
@@ -878,10 +925,16 @@ var modificar = {};
         $scope.tipo = $state.params.tipo;
     });
 
-    app.controller("CompletadoCtrl",function($scope, $location, $state, $cordovaSQLite,$rootScope){
+    app.controller("CompletadoCtrl",function($scope, $location, $state, $cordovaSQLite,$rootScope, $ionicHistory){
       $scope.$on('$ionicView.beforeEnter', function () {
           $scope.doRefresh();
       });
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
       $scope.tipo = $state.params.tipo;
       $scope.id = $state.params.id;
         query = "SELECT * FROM "+$scope.tipo+" where id = ?";
@@ -909,10 +962,16 @@ var modificar = {};
           $state.go(a,{},{location:'replace'});
          }
     });
-    app.controller("AnterioresCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite,$state){
+    app.controller("AnterioresCtrl",function($scope,$ionicPopup, $timeout,$http,$ionicLoading,$location,$cordovaSQLite,$state, $ionicHistory){
       $scope.$on('$ionicView.beforeEnter', function () {
           $scope.doRefresh();
       });
+        if (!usuario_id) {
+          $ionicHistory.nextViewOptions({
+              disableBack: true
+          });
+          $state.go("login");
+        }
       query = "SELECT * from evento";
       $scope.eventos = [];
       $cordovaSQLite.execute(db,query,[]).then(function(ok){
